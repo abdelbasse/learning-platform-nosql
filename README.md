@@ -153,6 +153,7 @@ Here’s an updated *Deployment Guide* with detailed step-by-step instructions f
      ```bash
      node -v
      npm -v
+     npm install dotenv
      ```
 
 2. **Install MongoDB**:  
