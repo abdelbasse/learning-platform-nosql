@@ -68,11 +68,16 @@ async function connectRedis() {
       console.error('Error connecting to Redis:', err);
     });
     
-    await redisClient.connect();
+    await redisClient.connect();  // Ensure that we are awaiting connection completion
+    if (redisClient.isOpen) {
+      console.log('Redis client is open and ready for operations');
+    } else {
+      console.error('Redis client failed to connect');
+    }
   } catch (error) {
     console.error('Error connecting to Redis:', error);
     throw error; 
-  }
+  }  
 }
 
 // Function to close both MongoDB and Redis connections
