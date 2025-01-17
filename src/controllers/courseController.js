@@ -1,7 +1,29 @@
 // Question: Quelle est la différence entre un contrôleur et une route ?
 // Réponse:
+/*
+            Une route est un point d'URL qui gère des requêtes HTTP spécifiques comme 
+            GET, POST ou DELETE. Un contrôleur est responsable de la gestion de la logique
+            derrière ces requêtes, comme le traitement des données et l'interaction avec 
+            les services ou la base de données. En séparant les routes des contrôleurs,
+            vous rendez votre code plus propre et plus organisé, car les routes définissent
+            simplement l'URL et la méthode HTTP, tandis que les contrôleurs gèrent la 
+            logique métier.
+*/
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 // Question : Pourquoi séparer la logique métier des routes ?
 // Réponse :
+/*
+            Séparer la logique métier des routes rend le code plus organisé, facile à 
+            maintenir et évolutif. Cela permet de modifier la logique en un seul endroit
+            sans affecter les routes. Si vous devez changer la manière dont les données 
+            sont traitées ou ajouter de nouvelles fonctionnalités, vous pouvez le faire 
+            dans le contrôleur, en gardant les routes propres et concentrées uniquement 
+            sur la gestion des requêtes HTTP. Cela améliore également la réutilisabilité, 
+            les tests et le débogage, car chaque partie du système a une responsabilité 
+            claire.
+*/ 
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 const { ObjectId } = require('mongodb');
 const db = require('../config/db');
@@ -11,9 +33,40 @@ const redisService = require('../services/redisService');
 async function createCourse(req, res) {
   // TODO: Implémenter la création d'un cours
   // Utiliser les services pour la logique réutilisable
+  try {
+    const { courseName, description, instructor } = req.body;
+
+    if (!courseName || !description || !instructor) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Create a course object
+    const course = {
+      courseName,
+      description,
+      instructor,
+      createdAt: new Date(),
+    };
+
+    // Insert the course using the mongoService
+    const newCourse = await mongoService.create('courses', course);
+    
+    // Optionally cache the course data in Redis (with a TTL)
+    await redisService.cacheData(`course:${newCourse._id}`, newCourse, 3600);
+
+    return res.status(201).json({
+      message: 'Course created successfully',
+      course: newCourse,
+    });
+
+  } catch (error) {
+    console.error('Error creating course:', error);
+    return res.status(500).json({ message: 'Failed to create course', error: error.message });
+  }
 }
 
 // Export des contrôleurs
 module.exports = {
   // TODO: Exporter les fonctions du contrôleur
+  createCourse
 };
