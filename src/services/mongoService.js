@@ -23,10 +23,8 @@ const dbConnection = require('../config/db');
 
 async function getAllDocuments(collectionName) {
   try {
-    await dbConnection.connectMongo();
     const db = dbConnection.getDb();
     
-    // Récupérer tous les documents de la collection
     const documents = await db.collection(collectionName).find().toArray();
     
     if (!documents || documents.length === 0) {
@@ -36,7 +34,7 @@ async function getAllDocuments(collectionName) {
     return documents;
   } catch (error) {
     console.error(`Error in getAllDocuments: ${error.message}`);
-    throw error; // Rethrow the error to be handled by the calling code
+    throw error;
   }
 }
 
@@ -48,7 +46,6 @@ async function findOneById(collection, id) {
       throw new Error('Invalid ObjectId');
     }
 
-    await dbConnection.connectMongo();
     const db = dbConnection.getDb();
     const result = await db.collection(collection).findOne({ _id: new ObjectId(id) });
     if (!result) {
@@ -58,14 +55,13 @@ async function findOneById(collection, id) {
     return result;
   } catch (error) {
     console.error(`Error in findOneById: ${error.message}`);
-    throw error; // Rethrow the error to be handled by the calling code
+    throw error;
   }
 }
 
 // Function to insert a document into a collection
 async function insertOne(collection, document) {
   try {
-    await dbConnection.connectMongo();
     const db = dbConnection.getDb();
     const result = await db.collection(collection).insertOne(document);
     
@@ -77,19 +73,18 @@ async function insertOne(collection, document) {
     }
   } catch (error) {
     console.error(`Error in insertOne: ${error.message}`);
-    throw error; // Rethrow the error to be handled by the calling code
+    throw error;
   }
 }
 
 async function countDocuments(collection) {
   try {
-    await dbConnection.connectMongo();
     const db = dbConnection.getDb();
     const count = await db.collection(collection).countDocuments();
     return count;
   } catch (error) {
     console.error(`Error in countDocuments: ${error.message}`);
-    throw error; // Rethrow the error to be handled by the calling code
+    throw error; 
   }
 }
 

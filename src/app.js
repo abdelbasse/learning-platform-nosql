@@ -40,11 +40,10 @@ async function startServer() {
     // TODO: Configurer les middlewares Express
     app.use(express.json()); 
     // TODO: Monter les routes
-    app.use('/courses', courseRoutes);  // Course-related routes
-    app.use('/students', studentRoutes); // Student-related routes
-    app.get('/test', (req, res) => {
-      res.json({ success: true, message: 'App is running' });
-    });
+    // [Note : any rout in courseRoutes will be accessed by the '/courses/'${rout_name} ]
+    app.use('/courses', courseRoutes); 
+    // [Note : any rout in studentRoutes will be accessed by the '/students/'${rout_name} ]
+    app.use('/students', studentRoutes);
     // TODO: Démarrer le serveur
     const port = config.port || 3000;
     app.listen(port, () => {
@@ -52,7 +51,7 @@ async function startServer() {
     });
   } catch (error) {
     console.error('Failed to start server:', error.message || error);
-    process.exit(1);  // Exit with error code on failure
+    process.exit(1);  
   }
 }
 
@@ -61,13 +60,12 @@ process.on('SIGTERM', async () => {
   // TODO: Implémenter la fermeture propre des connexions
   console.log('Received SIGTERM, shutting down gracefully...');
   try {
-    // Implémenter la fermeture propre des connexions
-    await db.closeConnections(); // Close DB connections (MongoDB and Redis)
+    await db.closeConnections(); 
     console.log('Database connections closed.');
-    process.exit(0);  // Exit successfully
+    process.exit(0);  
   } catch (error) {
     console.error('Error during shutdown:', error);
-    process.exit(1);  // Exit with error if something goes wrong during shutdown
+    process.exit(1);  
   }
 });
 

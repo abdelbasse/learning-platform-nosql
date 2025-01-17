@@ -32,22 +32,16 @@ const redisService = require('../services/redisService');
 
 async function getAllCourses(req, res) {
   try {
-    // Connect to MongoDB
     const dbInstance = db.getDb();
-
-    // Access the 'courses' collection and retrieve all documents
     const coursesCollection = dbInstance.collection('courses');
     const courses = await coursesCollection.find({}).toArray();
 
-    // Send the result as a response
     res.status(200).json({
       success: true,
       data: courses,
     });
   } catch (error) {
     console.error('Error retrieving courses:', error);
-
-    // Handle errors
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve courses',
@@ -72,11 +66,7 @@ async function createCourse(req, res) {
       instructor,
       createdAt: new Date(),
     };
-
-    // Insert the course using the mongoService
     const newCourse = await mongoService.create('courses', course);
-    
-    // Optionally cache the course data in Redis (with a TTL)
     await redisService.cacheData(`course:${newCourse._id}`, newCourse, 3600);
 
     return res.status(201).json({
@@ -93,15 +83,12 @@ async function createCourse(req, res) {
 async function getCourse(req, res) {
   try {
     const { id } = req.params;
-
-    // Check if the course is in the Redis cache
     const cachedCourse = await redisService.getData(`course:${id}`);
     if (cachedCourse) {
       console.log('Course retrieved from Redis cache');
       return res.status(200).json(JSON.parse(cachedCourse)); // Return the cached data
     }
 
-    // If not in the cache, fetch it from MongoDB
     const course = await mongoService.findOneById('courses', id);
     res.status(200).json(course);
 

@@ -29,15 +29,13 @@ const dbConnection = require('../config/db');
 async function cacheData(key, data, ttl) {
     // TODO: Implémenter une fonction générique de cache
     try {
-      await dbConnection.connectRedis();
-      
-      const redisClient = dbConnection.getRedisClient(); // Ensure you're accessing the client
+      const redisClient = dbConnection.getRedisClient();
       if (!redisClient.isOpen) {
         console.error('Redis client is not connected');
         return;
       }
   
-      await redisClient.setEx(key, ttl, JSON.stringify(data)); // Expires after 'ttl' seconds
+      await redisClient.setEx(key, ttl, JSON.stringify(data));
       console.log(`Data cached with key: ${key}, TTL: ${ttl} seconds`);
     } catch (error) {
       console.error('Error caching data in Redis:', error);
@@ -48,26 +46,23 @@ async function cacheData(key, data, ttl) {
 // Fonction pour récupérer des données de Redis
 async function getData(key) {
   try {
-    await dbConnection.connectRedis();
-      
-    const redisClient = dbConnection.getRedisClient(); // Ensure you're accessing the client
+    const redisClient = dbConnection.getRedisClient(); 
     if (!redisClient.isOpen) {
       console.error('Redis client is not connected');
       return;
     }
-
     const data = await redisClient.get(key);
     
     if (data) {
       console.log(`Data found for key: ${key}`);
-      return JSON.parse(data);  // Parse the JSON data back to an object
+      return JSON.parse(data);  
     } else {
       console.log(`No data found for key: ${key}`);
-      return null;  // Return null if data is not found
+      return null;  
     }
   } catch (error) {
     console.error('Error retrieving data from Redis:', error);
-    return null;  // Return null in case of error
+    return null;  
   }
 }
   
