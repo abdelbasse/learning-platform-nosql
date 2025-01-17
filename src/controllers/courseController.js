@@ -88,7 +88,7 @@ async function getCourse(req, res) {
 
 async function getCourseStats(req, res) {
   try {
-    // prefer not to save the count in cash due the count can be change anytime so it's not realiba to get it using redis 
+    // prefer not to save the count in cash due the count can be change anytime so it's not good practice to get the count using redis 
     const courseCount = await mongoService.countDocuments('courses');
     const courseStats = {
       totalCourses: courseCount
