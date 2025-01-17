@@ -1,5 +1,4 @@
 # Compléter ici !!!!???
+# .env // because .env contian private information that should not be shared to public like token database names root passwords etc etc
 
 node_modules
-
-.env
