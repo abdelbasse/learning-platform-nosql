@@ -25,8 +25,7 @@
 
 const { MongoClient } = require('mongodb');
 const redis = require('redis');
-// './env' indicates we need to create an env.js file, which will read values from the .env file without exposing sensitive data during commits or pushes.
-const config = require('./env');      
+const config = require('./env');
 
 let mongoClient, redisClient, db;
 
@@ -34,29 +33,75 @@ async function connectMongo() {
   // TODO: Implémenter la connexion MongoDB
   // Gérer les erreurs et les retries
   try {
-    console.log('MongoDB URI:', config.MONGODB_URI);
-    console.log('Database Name:', config.MONGODB_DB_NAME);
+    console.log('MongoDB URI:', config.mongodb.uri);
+    console.log('Database Name:', config.mongodb.dbName);
 
-    if (!config.MONGODB_URI) throw new Error('MONGODB_URI is not defined');
-    if (!config.MONGODB_DB_NAME) throw new Error('MONGODB_DB_NAME is not defined');
+    if (!config.mongodb.uri) throw new Error('mongodb uri is not defined');
+    if (!config.mongodb.dbName) throw new Error('mongodb dbName is not defined');
 
-    mongoClient = new MongoClient(config.MONGODB_URI, { useUnifiedTopology: true });
+    mongoClient = new MongoClient(config.mongodb.uri, { useUnifiedTopology: true });
     await mongoClient.connect();
-    db = mongoClient.db(config.MONGODB_DB_NAME);
+    db = mongoClient.db(config.mongodb.dbName);
+
     console.log('Connected to MongoDB successfully!');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
+    throw error;  
   }
 }
 
 async function connectRedis() {
   // TODO: Implémenter la connexion Redis
   // Gérer les erreurs et les retries
+  try {
+    if (!config.redis.uri) throw new Error('Redis URI is not defined');
+    
+    redisClient = redis.createClient({
+      url: config.redis.uri
+    });
+    
+    redisClient.on('connect', () => {
+      console.log('Connected to Redis successfully!');
+    });
+
+    redisClient.on('error', (err) => {
+      console.error('Error connecting to Redis:', err);
+    });
+    
+    await redisClient.connect();
+  } catch (error) {
+    console.error('Error connecting to Redis:', error);
+    throw error; 
+  }
 }
+
+// Function to close both MongoDB and Redis connections
+async function closeConnections() {
+  try {
+    // Close MongoDB connection if it's open
+    if (mongoClient) {
+      await mongoClient.close();
+      console.log('MongoDB connection closed');
+    }
+
+    // Close Redis connection if it's open and still connected
+    if (redisClient && redisClient.isOpen) {
+      await redisClient.quit();
+      console.log('Redis connection closed');
+    } else {
+      console.log('Redis client is already closed or was never connected');
+    }
+  } catch (error) {
+    console.error('Error while closing connections:', error);
+  }
+}
+
 
 // Export des fonctions et clients
 module.exports = {
-  // TODO: Exporter les clients et fonctions utiles
-
-  connectMongo
+  connectMongo,
+  connectRedis,
+  closeConnections,
+  getDb: () => db,
+  getRedisClient: () => redisClient,
 };
