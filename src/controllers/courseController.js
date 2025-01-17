@@ -30,6 +30,31 @@ const db = require('../config/db');
 const mongoService = require('../services/mongoService');
 const redisService = require('../services/redisService');
 
+async function getAllCourses(req, res) {
+  try {
+    // Connect to MongoDB
+    const dbInstance = db.getDb();
+
+    // Access the 'courses' collection and retrieve all documents
+    const coursesCollection = dbInstance.collection('courses');
+    const courses = await coursesCollection.find({}).toArray();
+
+    // Send the result as a response
+    res.status(200).json({
+      success: true,
+      data: courses,
+    });
+  } catch (error) {
+    console.error('Error retrieving courses:', error);
+
+    // Handle errors
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve courses',
+    });
+  }
+}
+
 async function createCourse(req, res) {
   // TODO: Implémenter la création d'un cours
   // Utiliser les services pour la logique réutilisable
@@ -106,5 +131,6 @@ module.exports = {
   // TODO: Exporter les fonctions du contrôleur
   createCourse,
   getCourse,
-  getCourseStats
+  getCourseStats,
+  getAllCourses
 };

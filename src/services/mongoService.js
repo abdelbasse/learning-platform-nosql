@@ -13,9 +13,32 @@
           réutilisabilité et les tests, tout en rendant la structure du code plus claire 
           et plus facile à modifier.
 */
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 const { ObjectId } = require('mongodb');
 const dbConnection = require('../config/db');
+
+// Fonctions utilitaires pour MongoDB
+
+async function getAllDocuments(collectionName) {
+  try {
+    await dbConnection.connectMongo();
+    const db = dbConnection.getDb();
+    
+    // Récupérer tous les documents de la collection
+    const documents = await db.collection(collectionName).find().toArray();
+    
+    if (!documents || documents.length === 0) {
+      throw new Error('No documents found in the collection');
+    }
+
+    return documents;
+  } catch (error) {
+    console.error(`Error in getAllDocuments: ${error.message}`);
+    throw error; // Rethrow the error to be handled by the calling code
+  }
+}
 
 // Fonctions utilitaires pour MongoDB
 async function findOneById(collection, id) {
@@ -75,5 +98,5 @@ module.exports = {
   // TODO: Exporter les fonctions utilitaires
   findOneById,
   insertOne,
-  countDocuments
+  getAllDocuments
 };
