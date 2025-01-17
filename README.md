@@ -57,9 +57,9 @@ The `.env` file should contain all sensitive or environment-specific information
 
 ```env
 MONGODB_URI=mongodb://localhost:27017
-MONGODB_DB_NAME=learning_platform_db
+MONGODB_DB_NAME=<your_database_name>
 REDIS_URI=redis://localhost:6379
-PORT=3000
+PORT=<api_port>
 ```
 
 - **MONGODB_URI**: Points to the local MongoDB instance.
