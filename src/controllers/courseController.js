@@ -65,8 +65,46 @@ async function createCourse(req, res) {
   }
 }
 
+async function getCourse(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the course is in the Redis cache
+    const cachedCourse = await redisService.getData(`course:${id}`);
+    if (cachedCourse) {
+      console.log('Course retrieved from Redis cache');
+      return res.status(200).json(JSON.parse(cachedCourse)); // Return the cached data
+    }
+
+    // If not in the cache, fetch it from MongoDB
+    const course = await mongoService.findOneById('courses', id);
+    res.status(200).json(course);
+
+  } catch (error) {
+    console.error(`Error fetching course: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching course', error: error.message });
+  }
+}
+
+async function getCourseStats(req, res) {
+  try {
+    // prefer not to save the count in cash due the count can be change anytime so it's not realiba to get it using redis 
+    const courseCount = await mongoService.countDocuments('courses');
+    const courseStats = {
+      totalCourses: courseCount
+    };
+
+    res.status(200).json(courseStats);
+  } catch (error) {
+    console.error(`Error fetching course stats: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching course stats', error: error.message });
+  }
+}
+
 // Export des contrôleurs
 module.exports = {
   // TODO: Exporter les fonctions du contrôleur
-  createCourse
+  createCourse,
+  getCourse,
+  getCourseStats
 };

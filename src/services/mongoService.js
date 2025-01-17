@@ -25,23 +25,12 @@ async function findOneById(collection, id) {
       throw new Error('Invalid ObjectId');
     }
 
-    // First, check Redis cache
-    const cachedData = await redisService.getData(`course:${id}`);
-    if (cachedData) {
-      console.log('Data retrieved from Redis cache');
-      return JSON.parse(cachedData);  // Redis stores data as string, so we parse it back to JSON
-    }
-
-    // If not in cache, connect to MongoDB and query the database
     await dbConnection.connectMongo();
     const db = dbConnection.getDb();
     const result = await db.collection(collection).findOne({ _id: new ObjectId(id) });
     if (!result) {
       throw new Error('Document not found');
     }
-
-    // Cache the result in Redis for future use
-    await redisService.cacheData(`course:${id}`, result, 3600); // Cache data for 1 hour (3600 seconds)
 
     return result;
   } catch (error) {
@@ -69,9 +58,22 @@ async function insertOne(collection, document) {
   }
 }
 
+async function countDocuments(collection) {
+  try {
+    await dbConnection.connectMongo();
+    const db = dbConnection.getDb();
+    const count = await db.collection(collection).countDocuments();
+    return count;
+  } catch (error) {
+    console.error(`Error in countDocuments: ${error.message}`);
+    throw error; // Rethrow the error to be handled by the calling code
+  }
+}
+
 // Export des services
 module.exports = {
   // TODO: Exporter les fonctions utilitaires
   findOneById,
-  insertOne
+  insertOne,
+  countDocuments
 };
