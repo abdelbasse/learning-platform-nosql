@@ -96,7 +96,7 @@ LEARNING-PLATFORM-BACKEND/
 │   ├── services/               # Reusable service logic.
 │   │   ├── mongoService.js     # MongoDB-related services.
 │   │   └── redisService.js     # Redis-related services.
-│   ├── tests/                  # Test files.
+├── tests/                      # Test files.
 │   │   └── 00.....             # Test Files of main functions
 └── app.js                      # Main application entry point.
 ```
